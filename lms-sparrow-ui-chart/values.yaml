@@ -1,0 +1,29 @@
+landing:
+  replicaCount: 2
+  repository: "surendergupta/sparrow_landing_ui"
+  tag: "1"
+  pullPolicy: Always
+  resources:
+    limits:
+      cpu: 500m
+      memory: 256Mi
+    requests:
+      cpu: 500m
+      memory: 256Mi
+  service:
+    type: LoadBalancer
+    port: 80
+    targetPort: 80
+
+ingress:
+  enabled: true
+  hosts:
+    - host: cloudcrypto.in
+      paths:
+        - path: /sparrow
+          pathType: Prefix
+          backend:
+            service:
+              name: release-name-lms-sparrow-ui-chart-lms-landing-svc
+              port:
+                number: 80

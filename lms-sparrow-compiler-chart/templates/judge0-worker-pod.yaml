@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workers-pod
+spec:
+  replicas: {{ .Values.compiler.replicaCount }}
+  selector:
+    matchLabels:
+      app: workers
+  template:
+    metadata:
+      labels:
+        app: workers
+    spec:
+      containers:
+      - name: workers
+        image: {{ .Values.compiler.repository }}
+        imagePullPolicy: {{ .Values.compiler.pullPolicy }}
+        {{- if .Values.compiler.resources }}
+        resources:
+          {{- if .Values.compiler.resources.requests }}
+          requests:
+            cpu: {{ .Values.compiler.resources.requests.cpu }}
+            memory: {{ .Values.compiler.resources.requests.memory }}
+          {{- end }}
+          {{- if .Values.compiler.resources.limits }}
+          limits:
+            cpu: {{ .Values.compiler.resources.limits.cpu }}
+            memory: {{ .Values.compiler.resources.limits.memory }}
+          {{- end }}
+        {{- end }}
+        command: ["./scripts/workers"]
+        volumeMounts:
+        - name: judge0-config
+          mountPath: /judge0.conf
+          readOnly: true
+      volumes:
+      - name: judge0-config
+        configMap:
+          name: judge0-config

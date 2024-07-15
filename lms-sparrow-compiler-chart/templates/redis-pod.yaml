@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "lms-sparrow-compiler-chart.fullname" . }}-redis-pod
+spec:
+  replicas: {{ .Values.redis.replicaCount }}
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: {{ .Values.redis.repository }}
+          command: ["bash", "-c", 'docker-entrypoint.sh --appendonly yes --requirepass "$REDIS_PASSWORD"']          
+          env:
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: judge0-secrets
+                key: REDIS_PASSWORD
+          volumeMounts:
+            - name: redis-pvc
+              mountPath: /data
+          resources:
+            limits:
+              cpu: "{{ .Values.redis.resources.limits.cpu }}"
+              memory: {{ .Values.redis.resources.limits.memory }}
+            requests:
+              cpu: "{{ .Values.redis.resources.requests.cpu }}"
+              memory: {{ .Values.redis.resources.requests.memory }}
+      volumes:
+        - name: redis-pvc
+          persistentVolumeClaim:
+            claimName: redis-volume-claim

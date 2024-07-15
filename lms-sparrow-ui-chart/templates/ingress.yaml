@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: lms-ui-ingress
+  labels:
+    name: lms-ui-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  {{- range .Values.ingress.hosts }}
+  - host: {{ .host }}
+    http:
+      paths:
+      {{- range .paths }}
+      - pathType: {{ .pathType }}
+        path: {{ .path }}
+        backend:
+          service:
+            name: {{ .backend.service.name }}
+            port:
+              number: {{ .backend.service.port.number }}
+      {{- end }}
+{{- end }}

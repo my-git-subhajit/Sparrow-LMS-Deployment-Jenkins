@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "lms-sparrow-ui-chart.fullname" . }}-lms-landing-pod
+spec:
+  replicas: {{ .Values.landing.replicaCount }}
+  selector:
+    matchLabels:
+      app: lms-landing
+  template:
+    metadata:
+      labels:
+        app: lms-landing
+    spec:
+      containers:
+      - name: lms-landing
+        image: "{{ .Values.landing.repository }}:{{ .Values.landing.tag }}"
+        imagePullPolicy: {{ .Values.landing.pullPolicy }}
+        resources:
+          requests:
+            memory: {{ .Values.landing.resources.requests.memory }}
+            cpu: {{ .Values.landing.resources.requests.cpu }}  
+          limits:
+            memory: {{ .Values.landing.resources.limits.memory }}        
+            cpu: {{ .Values.landing.resources.limits.cpu }}  
+        ports:
+        - containerPort: {{ .Values.landing.service.targetPort }}

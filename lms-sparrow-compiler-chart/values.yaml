@@ -1,0 +1,68 @@
+storageClass:
+  name: standard
+  provisioner: kubernetes.io/aws-ebs
+  volumeBindingMode: WaitForFirstConsumer
+  parameters:
+    type: gp2
+    fsType: ext4
+
+compiler:
+  replicaCount: 1
+  repository: "judge0/judge0:1.13.0"
+  pullPolicy: Always
+  # resources:
+  #   limits:
+  #     cpu: 1000m
+  #     memory: 512Mi
+  #   requests:
+  #     cpu: "0.2"
+  #     memory: 256Mi
+      
+  service:
+    type: LoadBalancer
+    port: 80
+    targetPort: 2358
+
+postgres:
+  replicaCount: 1
+  repository: "postgres:13.0"
+  pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: "0.5"
+      memory: 512Mi
+    requests:
+      cpu: "0.2"
+      memory: 256Mi
+  service:
+    type: ClusterIP
+    port: 5432
+    targetPort: 5432
+redis:
+  replicaCount: 1
+  repository: "redis:6.0"
+  pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: "0.5"
+      memory: 512Mi
+    requests:
+      cpu: "0.2"
+      memory: 256Mi
+  service:
+    type: ClusterIP 
+    port: 6379
+    targetPort: 6379
+
+ingress:
+  enabled: true
+  hosts:
+    - host: cloudcrypto.in
+      paths:
+        - path: /compiler
+          pathType: Prefix
+          backend:
+            service:
+              name: release-name-lms-sparrow-compiler-chart-lms-compiler-server-svc
+              port:
+                number: 80

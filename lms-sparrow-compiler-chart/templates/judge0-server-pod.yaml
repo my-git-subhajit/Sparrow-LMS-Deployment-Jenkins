@@ -1,0 +1,54 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-pod
+spec:
+  replicas: {{ .Values.compiler.replicaCount }}
+  selector:
+    matchLabels:
+      app: server
+  template:
+    metadata:
+      labels:
+        app: server
+    spec:
+      containers:
+      - name: server
+        image: {{ .Values.compiler.repository }}
+        imagePullPolicy: {{ .Values.compiler.pullPolicy }}
+        {{- if .Values.compiler.resources }}
+        resources:
+          {{- if .Values.compiler.resources.requests }}
+          requests:
+            cpu: {{ .Values.compiler.resources.requests.cpu }}
+            memory: {{ .Values.compiler.resources.requests.memory }}
+          {{- end }}
+          {{- if .Values.compiler.resources.limits }}
+          limits:
+            cpu: {{ .Values.compiler.resources.limits.cpu }}
+            memory: {{ .Values.compiler.resources.limits.memory }}
+          {{- end }}
+        {{- end }}
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: judge0-secrets
+              key: REDIS_PASSWORD
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: judge0-secrets
+              key: POSTGRES_PASSWORD
+        volumeMounts:
+        - name: judge0-config
+          mountPath: /judge0.conf
+          subPath: judge0.conf
+          readOnly: true
+        ports:
+        - containerPort: {{ .Values.compiler.service.targetPort }}
+      volumes:
+      - name: judge0-config
+        configMap:
+          name: judge0-config

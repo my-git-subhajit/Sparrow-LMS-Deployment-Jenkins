@@ -1,0 +1,29 @@
+frontend:
+  replicaCount: 2
+  repository: "surendergupta/sparrow_frontend"
+  tag: "1"
+  pullPolicy: Always
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  service:
+    type: LoadBalancer
+    port: 80
+    targetPort: 80
+
+ingress:
+  enabled: true
+  hosts:
+    - host: cloudcrypto.in
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: release-name-lms-sparrow-fe-chart-lms-frontend-svc
+              port:
+                number: 80

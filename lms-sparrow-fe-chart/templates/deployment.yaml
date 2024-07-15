@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "lms-sparrow-fe-chart.fullname" . }}-lms-frontend-pod
+spec:
+  replicas: {{ .Values.frontend.replicaCount }}
+  selector:
+    matchLabels:
+      app: lms-frontend
+  template:
+    metadata:
+      labels:
+        app: lms-frontend
+    spec:
+      containers:
+      - name: lms-frontend
+        image: "{{ .Values.frontend.repository }}:{{ .Values.frontend.tag }}"
+        imagePullPolicy: {{ .Values.frontend.pullPolicy }}
+        resources:
+          requests:
+            memory: {{ .Values.frontend.resources.requests.memory }}
+            cpu: {{ .Values.frontend.resources.requests.cpu }} 
+          limits:
+            memory: {{ .Values.frontend.resources.limits.memory }}        
+            cpu: {{ .Values.frontend.resources.limits.cpu }}     
+        ports:
+        - containerPort: {{ .Values.frontend.service.targetPort }}

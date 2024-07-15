@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "lms-sparrow-be-chart.fullname" . }}-pod
+spec:
+  replicas: {{ .Values.backend.replicaCount }}
+  selector:
+    matchLabels:
+      app: lms-backend
+  template:
+    metadata:
+      labels:
+        app: lms-backend
+    spec:
+      containers:
+      - name: lms-backend
+        image: "{{ .Values.backend.repository }}:{{ .Values.backend.tag }}"
+        imagePullPolicy: {{ .Values.backend.pullPolicy }}
+        {{- if .Values.backend.resources }}
+        resources:
+          {{- if .Values.backend.resources.requests }}
+          requests:
+            cpu: {{ .Values.backend.resources.requests.cpu }}
+            memory: {{ .Values.backend.resources.requests.memory }}
+          {{- end }}
+          {{- if .Values.backend.resources.limits }}
+          limits:
+            cpu: {{ .Values.backend.resources.limits.cpu }}
+            memory: {{ .Values.backend.resources.limits.memory }}
+          {{- end }}
+        {{- end }}        
+        env:
+          - name: PORT
+            valueFrom:
+              secretKeyRef:
+                name: backend-secrets
+                key: PORT
+
+          - name: MONGO_URL
+            value: "mongodb+srv://<USERNAME>:<PASSWORD>@sparrow.hcgs1ob.mongodb.net/sparrowdb"
+
+          - name: JWT_TOKEN_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: backend-secrets
+                key: JWT_TOKEN_SECRET
+
+          - name: AWS_REGION
+            valueFrom:
+              secretKeyRef:
+                name: backend-secrets
+                key: AWS_REGION
+
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: backend-secrets
+                key: AWS_ACCESS_KEY_ID
+
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: backend-secrets
+                key: AWS_SECRET_ACCESS_KEY
+
+          - name: AWS_BUCKET_NAME
+            valueFrom:
+              secretKeyRef:
+                name: backend-secrets
+                key: AWS_BUCKET_NAME
+
+          - name: GITHUB_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: backend-secrets
+                key: GITHUB_CLIENT_ID
+
+          - name: GITHUB_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: backend-secrets
+                key: GITHUB_CLIENT_SECRET
+
+          - name: COMPILER_URL
+            value: "YOUR_COMPILER_URL"
+
+        ports:
+        - containerPort: {{ .Values.backend.service.targetPort }}
