@@ -1,6 +1,6 @@
 frontend:
   replicaCount: 2
-  repository: "surendergupta/sparrow_frontend"
+  repository: "subhajitdatta/sparrow_frontend"
   tag: "1"
   pullPolicy: Always
   resources:
